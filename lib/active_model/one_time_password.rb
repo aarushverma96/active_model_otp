@@ -43,7 +43,12 @@ module ActiveModel
         self.otp_counter = 1
       end
 
-      def authenticate_otp(code, options = {})
+      def authenticate_otp(code, qr=nil, options = {})
+        if qr == true || qr == "true"
+          otp_interval = 20
+        else
+          otp_interval = 30
+        end
         if otp_counter_based
           hotp = ROTP::HOTP.new(otp_column, digits: otp_digits)
           result = hotp.verify(code, otp_counter)
@@ -53,7 +58,7 @@ module ActiveModel
           end
           result
         else
-          totp = ROTP::TOTP.new(otp_column, digits: otp_digits, interval: 20)
+          totp = ROTP::TOTP.new(otp_column, digits: otp_digits, interval: otp_interval)
           if drift = options[:drift]
             totp.verify(code, drift_behind: drift)
           else
@@ -62,7 +67,12 @@ module ActiveModel
         end
       end
 
-      def otp_code(options = {})
+      def otp_code(qr=nil, options = {})
+        if qr == true || qr == "true"
+          otp_interval = 20
+        else
+          otp_interval = 30
+        end
         if otp_counter_based
           if options[:auto_increment]
             self.otp_counter += 1
@@ -75,7 +85,7 @@ module ActiveModel
           else
             time = options
           end
-          ROTP::TOTP.new(otp_column, digits: otp_digits, interval: 20).at(time)
+          ROTP::TOTP.new(otp_column, digits: otp_digits, interval: otp_interval).at(time)
         end
       end
 
