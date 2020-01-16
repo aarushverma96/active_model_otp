@@ -53,7 +53,7 @@ module ActiveModel
           end
           result
         else
-          totp = ROTP::TOTP.new(otp_column, digits: otp_digits)
+          totp = ROTP::TOTP.new(otp_column, digits: otp_digits, interval: 20)
           if drift = options[:drift]
             totp.verify(code, drift_behind: drift)
           else
@@ -75,7 +75,7 @@ module ActiveModel
           else
             time = options
           end
-          ROTP::TOTP.new(otp_column, digits: otp_digits).at(time)
+          ROTP::TOTP.new(otp_column, digits: otp_digits, interval: 20).at(time)
         end
       end
 
